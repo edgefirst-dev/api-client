@@ -51,7 +51,7 @@ You can also define custom methods in the subclass to encapsulate common API cal
 ```ts
 class CustomAPIClient extends APIClient {
   async fetchUserData(id: number) {
-    let response = await this.get(\`/users/\${id}\`);
+    let response = await this.get(`/users/${id}`);
     return response.json();
   }
 }
