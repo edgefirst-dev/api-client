@@ -9,7 +9,6 @@
  * The class allows for customization of the request and response through the `before` and `after` hooks, which can be overridden in subclasses to modify
  * behavior before sending a request or after receiving a response.
  *
- * @abstract
  * @example
  * class MyAPIClient extends APIClient {
  *   readonly baseURL = new URL("https://api.example.com/");
