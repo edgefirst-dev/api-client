@@ -49,15 +49,19 @@ let response = await client.get("/users/1");
 You can also define custom methods in the subclass to encapsulate common API calls.
 
 ```ts
+import { ObjectParser } from "@edgefirst-dev/data/parser";
+
 class CustomAPIClient extends APIClient {
   async fetchUserData(id: number) {
     let response = await this.get(`/users/${id}`);
-    return response.json();
+    let data = await response.json();
+    return new ObjectParser(data);
   }
 }
 
 let client = new CustomAPIClient("https://api.example.com");
-let data = await client.fetchUserData(1);
+let user = await client.fetchUserData(1);
+let userName = user.string("name");
 ```
 
 By overriding the constructor, you can provide a default base URL.
