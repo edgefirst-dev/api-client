@@ -1,9 +1,6 @@
 {
-	"name": "@edgefirst-dev/package-name",
+	"name": "@edgefirst-dev/api-client",
 	"version": "0.0.0",
-	"description": "A description of the package",
-	"license": "MIT",
-	"funding": ["https://github.com/sponsors/sergiodxa"],
 	"author": {
 		"name": "Sergio Xalambrí",
 		"email": "hello+oss@sergiodxa.com",
@@ -11,12 +8,35 @@
 	},
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/edgefirst-dev/package-name"
+		"url": "https://github.com/edgefirst-dev/api-client"
 	},
-	"homepage": "https://edgefirst-dev.github.io/package-name",
+	"devDependencies": {
+		"@arethetypeswrong/cli": "^0.16.2",
+		"@biomejs/biome": "^1.8.3",
+		"@total-typescript/tsconfig": "^1.0.4",
+		"@types/bun": "^1.1.6",
+		"consola": "^3.2.3",
+		"msw": "^2.4.10",
+		"typedoc": "^0.26.5",
+		"typedoc-plugin-mdn-links": "^3.2.6",
+		"typescript": "^5.5.4"
+	},
+	"peerDependencies": {},
+	"exports": {
+		".": "./build/index.js",
+		"./package.json": "./package.json"
+	},
 	"bugs": {
-		"url": "https://github.com/edgefirst-dev/package-name/issues"
+		"url": "https://github.com/edgefirst-dev/api-client/issues"
 	},
+	"description": "A basic HTTP client for making API requests",
+	"engines": {
+		"node": ">=20.0.0"
+	},
+	"files": ["build", "package.json", "README.md"],
+	"funding": ["https://github.com/sponsors/sergiodxa"],
+	"homepage": "https://edgefirst-dev.github.io/api-client",
+	"license": "MIT",
 	"scripts": {
 		"build": "tsc",
 		"typecheck": "tsc --noEmit",
@@ -25,25 +45,5 @@
 		"exports": "bun run ./scripts/exports.ts"
 	},
 	"sideEffects": false,
-	"type": "module",
-	"engines": {
-		"node": ">=20.0.0"
-	},
-	"files": ["build", "package.json", "README.md"],
-	"exports": {
-		".": "./build/index.js",
-		"./package.json": "./package.json"
-	},
-	"dependencies": {},
-	"peerDependencies": {},
-	"devDependencies": {
-		"@arethetypeswrong/cli": "^0.16.2",
-		"@biomejs/biome": "^1.8.3",
-		"@total-typescript/tsconfig": "^1.0.4",
-		"@types/bun": "^1.1.6",
-		"consola": "^3.2.3",
-		"typedoc": "^0.26.5",
-		"typedoc-plugin-mdn-links": "^3.2.6",
-		"typescript": "^5.5.4"
-	}
+	"type": "module"
 }
