@@ -1,6 +1,6 @@
 {
 	"name": "@edgefirst-dev/api-client",
-	"version": "0.0.1",
+	"version": "0.1.0",
 	"author": {
 		"name": "Sergio Xalambrí",
 		"email": "hello+oss@sergiodxa.com",
@@ -33,8 +33,14 @@
 	"engines": {
 		"node": ">=20.0.0"
 	},
-	"files": ["build", "package.json", "README.md"],
-	"funding": ["https://github.com/sponsors/sergiodxa"],
+	"files": [
+		"build",
+		"package.json",
+		"README.md"
+	],
+	"funding": [
+		"https://github.com/sponsors/sergiodxa"
+	],
 	"homepage": "https://edgefirst-dev.github.io/api-client",
 	"license": "MIT",
 	"scripts": {
