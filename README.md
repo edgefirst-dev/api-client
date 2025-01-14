@@ -32,7 +32,7 @@ class CustomAPIClient extends APIClient {
     return request;
   }
 
-  async after(response: Response) {
+  async after(request: Request, response: Response) {
     if (response.status === 401) {
       // Handle unauthorized error
       throw new Error("Unauthorized");

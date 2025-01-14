@@ -78,7 +78,7 @@ describe(APIClient.name, () => {
 				return request;
 			}
 
-			async after(response: Response) {
+			async after(_: Request, response: Response) {
 				if (response.status === 400) throw new Error("Bad request");
 				return response;
 			}

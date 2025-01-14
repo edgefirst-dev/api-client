@@ -44,10 +44,11 @@ export class APIClient {
 	 * This method is called after the response is received.
 	 * It can be used to process or inspect the response before returning it.
 	 *
+	 * @param request - The request object that was sent
 	 * @param response - The response object that was received.
 	 * @returns A promise that resolves to the (possibly processed) response.
 	 */
-	protected async after(response: Response) {
+	protected async after(request: Request, response: Response) {
 		return response;
 	}
 
@@ -63,7 +64,7 @@ export class APIClient {
 		let url = new URL(path, this.baseURL);
 		let request = await this.before(new Request(url.toString(), init));
 		let response = await fetch(request);
-		return await this.after(response);
+		return await this.after(request, response);
 	}
 
 	/**
