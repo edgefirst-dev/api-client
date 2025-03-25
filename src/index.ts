@@ -21,6 +21,9 @@
  * }
  */
 export class APIClient {
+	private beforeListeners = new Set<APIClient.BeforeListenerFunction>();
+	private afterListeners = new Set<APIClient.AfterListenerFunction>();
+
 	/** The base URL for all API requests. Must be defined in subclasses. */
 	protected readonly baseURL: URL;
 
@@ -62,9 +65,26 @@ export class APIClient {
 	 */
 	async fetch(path: string, init?: RequestInit) {
 		let url = new URL(path, this.baseURL);
-		let request = await this.before(new Request(url.toString(), init));
+
+		let request = new Request(url.toString(), init);
+		request = await this.before(request);
+
+		if (this.beforeListeners.size > 0) {
+			for (let listener of this.beforeListeners) {
+				request = await listener(request);
+			}
+		}
+
 		let response = await fetch(request);
-		return await this.after(request, response);
+		response = await this.after(request, response);
+
+		if (this.afterListeners.size > 0) {
+			for (let listener of this.afterListeners) {
+				response = await listener(request, response);
+			}
+		}
+
+		return response;
 	}
 
 	/**
@@ -121,4 +141,43 @@ export class APIClient {
 	delete(path: string, init?: Omit<RequestInit, "method">) {
 		return this.fetch(path, { ...init, method: "DELETE" });
 	}
+
+	public on(event: "before", listener: APIClient.BeforeListenerFunction): this;
+	public on(event: "after", listener: APIClient.AfterListenerFunction): this;
+	public on(event: "before" | "after", listener: APIClient.ListenerFunction) {
+		if (event === "before") {
+			this.beforeListeners.add(listener as APIClient.BeforeListenerFunction);
+		}
+
+		if (event === "after") {
+			this.afterListeners.add(listener as APIClient.AfterListenerFunction);
+		}
+
+		return this;
+	}
+
+	public off(event: "before", listener: APIClient.BeforeListenerFunction): this;
+	public off(event: "after", listener: APIClient.AfterListenerFunction): this;
+	public off(event: "before" | "after", listener: APIClient.ListenerFunction) {
+		if (event === "before") {
+			this.beforeListeners.delete(listener as APIClient.BeforeListenerFunction);
+		}
+
+		if (event === "after") {
+			this.afterListeners.delete(listener as APIClient.AfterListenerFunction);
+		}
+
+		return this;
+	}
+}
+
+export namespace APIClient {
+	export type BeforeListenerFunction = (request: Request) => Promise<Request>;
+
+	export type AfterListenerFunction = (
+		request: Request,
+		response: Response,
+	) => Promise<Response>;
+
+	export type ListenerFunction = BeforeListenerFunction | AfterListenerFunction;
 }
