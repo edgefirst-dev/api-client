@@ -121,7 +121,7 @@ describe(APIClient.name, () => {
 
 			let client = new APIClient(new URL("https://example.com"));
 
-			client.on("before", async (request) => {
+			client.interceptors.before.on(async (request) => {
 				request.headers.set("X-Custom", randomValue);
 				return request;
 			});
@@ -139,7 +139,7 @@ describe(APIClient.name, () => {
 		test("can attach after interceptor to instance", async () => {
 			let client = new APIClient(new URL("https://example.com"));
 
-			client.on("after", async (_, response) => {
+			client.interceptors.after.on(async (_, response) => {
 				if (response.status === 400) throw new Error("Bad request");
 				return response;
 			});
@@ -156,12 +156,12 @@ describe(APIClient.name, () => {
 		test("can attach multiple before interceptors to instance", async () => {
 			let client = new APIClient(new URL("https://example.com"));
 
-			client.on("before", async (request) => {
+			client.interceptors.before.on(async (request) => {
 				request.headers.set("X-Custom", "First");
 				return request;
 			});
 
-			client.on("before", async (request) => {
+			client.interceptors.before.on(async (request) => {
 				request.headers.set("X-Custom", "Second");
 				return request;
 			});
@@ -179,12 +179,12 @@ describe(APIClient.name, () => {
 		test("can attach multiple after interceptors to instance", async () => {
 			let client = new APIClient(new URL("https://example.com"));
 
-			client.on("after", async (_, response) => {
+			client.interceptors.after.on(async (_, response) => {
 				if (response.status === 400) throw new Error("Bad request");
 				return response;
 			});
 
-			client.on("after", async (_, response) => {
+			client.interceptors.after.on(async (_, response) => {
 				if (response.status === 401) throw new Error("Unauthorized");
 				return response;
 			});
@@ -212,7 +212,7 @@ describe(APIClient.name, () => {
 
 			let client = new CustomClient();
 
-			client.on("before", async (request) => {
+			client.interceptors.before.on(async (request) => {
 				request.headers.set("X-Custom", "Instance");
 				return request;
 			});
@@ -241,7 +241,7 @@ describe(APIClient.name, () => {
 
 			let client = new CustomClient();
 
-			client.on("after", async (_, response) => {
+			client.interceptors.after.on(async (_, response) => {
 				if (response.status === 400) throw new TypeError("Bad request");
 				return response;
 			});

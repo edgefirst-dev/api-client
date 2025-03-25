@@ -20,16 +20,18 @@
  *   }
  * }
  */
-export class APIClient {
-	private beforeListeners = new Set<APIClient.BeforeListenerFunction>();
-	private afterListeners = new Set<APIClient.AfterListenerFunction>();
-
+export class APIClient implements APIClient.Type {
 	/** The base URL for all API requests. Must be defined in subclasses. */
 	protected readonly baseURL: URL;
 
 	constructor(baseURL: URL) {
 		this.baseURL = baseURL;
 	}
+
+	public interceptors = {
+		before: new Interceptor<APIClient.BeforeListenerFunction>(),
+		after: new Interceptor<APIClient.AfterListenerFunction>(),
+	};
 
 	/**
 	 * This method is called before the request is sent.
@@ -68,20 +70,14 @@ export class APIClient {
 
 		let request = new Request(url.toString(), init);
 		request = await this.before(request);
-
-		if (this.beforeListeners.size > 0) {
-			for (let listener of this.beforeListeners) {
-				request = await listener(request);
-			}
+		for (let listener of this.interceptors.before.listeners) {
+			request = await listener(request);
 		}
 
 		let response = await fetch(request);
 		response = await this.after(request, response);
-
-		if (this.afterListeners.size > 0) {
-			for (let listener of this.afterListeners) {
-				response = await listener(request, response);
-			}
+		for (let listener of this.interceptors.after.listeners) {
+			response = await listener(request, response);
 		}
 
 		return response;
@@ -141,33 +137,22 @@ export class APIClient {
 	delete(path: string, init?: Omit<RequestInit, "method">) {
 		return this.fetch(path, { ...init, method: "DELETE" });
 	}
+}
 
-	public on(event: "before", listener: APIClient.BeforeListenerFunction): this;
-	public on(event: "after", listener: APIClient.AfterListenerFunction): this;
-	public on(event: "before" | "after", listener: APIClient.ListenerFunction) {
-		if (event === "before") {
-			this.beforeListeners.add(listener as APIClient.BeforeListenerFunction);
-		}
+// biome-ignore lint/complexity/noBannedTypes: I need to use `Function` here
+class Interceptor<Listener extends Function> {
+	#listeners = new Set<Listener>();
 
-		if (event === "after") {
-			this.afterListeners.add(listener as APIClient.AfterListenerFunction);
-		}
-
-		return this;
+	public on(event: Listener) {
+		this.#listeners.add(event);
 	}
 
-	public off(event: "before", listener: APIClient.BeforeListenerFunction): this;
-	public off(event: "after", listener: APIClient.AfterListenerFunction): this;
-	public off(event: "before" | "after", listener: APIClient.ListenerFunction) {
-		if (event === "before") {
-			this.beforeListeners.delete(listener as APIClient.BeforeListenerFunction);
-		}
+	public off(event: Listener) {
+		this.#listeners.delete(event);
+	}
 
-		if (event === "after") {
-			this.afterListeners.delete(listener as APIClient.AfterListenerFunction);
-		}
-
-		return this;
+	get listeners() {
+		return Array.from(this.#listeners);
 	}
 }
 
@@ -180,4 +165,18 @@ export namespace APIClient {
 	) => Promise<Response>;
 
 	export type ListenerFunction = BeforeListenerFunction | AfterListenerFunction;
+
+	export interface Type {
+		interceptors: {
+			before: Interceptor<BeforeListenerFunction>;
+			after: Interceptor<AfterListenerFunction>;
+		};
+
+		fetch(path: string, init?: RequestInit): Promise<Response>;
+		get(path: string, init?: Omit<RequestInit, "method">): Promise<Response>;
+		post(path: string, init?: Omit<RequestInit, "method">): Promise<Response>;
+		put(path: string, init?: Omit<RequestInit, "method">): Promise<Response>;
+		patch(path: string, init?: Omit<RequestInit, "method">): Promise<Response>;
+		delete(path: string, init?: Omit<RequestInit, "method">): Promise<Response>;
+	}
 }

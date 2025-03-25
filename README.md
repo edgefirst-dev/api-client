@@ -83,14 +83,14 @@ You can add interceptors to the `APIClient` instance to customize the request an
 ```ts
 let client = new APIClient("https://api.example.com");
 
-client.on("before", async (request) => {
+client.interceptors.before.on(async (request) => {
   // Add a custom header to the request
   request.headers.set("X-Custom-Header", "value");
 
   return request;
 });
 
-client.on("after", async (request, response) => {
+client.interceptors.after.on(async (request, response) => {
   if (response.status === 401) {
     // Handle unauthorized error
     throw new Error("Unauthorized");
@@ -112,8 +112,8 @@ async function beforeInterceptor(request) {
 
 let client = new APIClient("https://api.example.com");
 
-client.on("before", beforeInterceptor); // Add the interceptor
-client.off("before", beforeInterceptor); // Remove the interceptor
+client.interceptors.before.on(beforeInterceptor); // Add the interceptor
+client.interceptors.before.off(beforeInterceptor); // Remove the interceptor
 ```
 
 The sub-class interceptors run before the instance interceptors.
@@ -130,7 +130,7 @@ class CustomAPIClient extends APIClient {
 
 let client = new CustomAPIClient("https://api.example.com");
 
-client.on("before", async (request) => {
+client.interceptors.before.on(async (request) => {
   // Add a custom header to the request
   request.headers.set("X-Custom-Header", "2");
 
@@ -201,7 +201,7 @@ Or you can use the `on` method to add an interceptor to handle common API errors
 ```ts
 let client = new APIClient("https://api.example.com");
 
-client.on("after", async (request, response) => {
+client.interceptors.after.on(async (_, response) => {
   if (response.status === 401) {
     // Handle unauthorized error
     throw new Error("Unauthorized");
