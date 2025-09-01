@@ -23,9 +23,14 @@
 export class APIClient implements APIClient.Type {
 	/** The base URL for all API requests. Must be defined in subclasses. */
 	protected readonly baseURL: URL;
+	protected options: APIClient.Options;
 
-	constructor(baseURL: URL) {
+	constructor(
+		baseURL: URL,
+		options: APIClient.Options = { fetch: globalThis.fetch },
+	) {
 		this.baseURL = baseURL;
+		this.options = options;
 	}
 
 	public interceptors = {
@@ -53,7 +58,7 @@ export class APIClient implements APIClient.Type {
 	 * @param response - The response object that was received.
 	 * @returns A promise that resolves to the (possibly processed) response.
 	 */
-	protected async after(request: Request, response: Response) {
+	protected async after(_request: Request, response: Response) {
 		return response;
 	}
 
@@ -74,7 +79,7 @@ export class APIClient implements APIClient.Type {
 			request = await listener(request);
 		}
 
-		let response = await fetch(request);
+		let response = await this.options.fetch(request);
 		response = await this.after(request, response);
 		for (let listener of this.interceptors.after.listeners) {
 			response = await listener(request, response);
@@ -178,5 +183,9 @@ export namespace APIClient {
 		put(path: string, init?: Omit<RequestInit, "method">): Promise<Response>;
 		patch(path: string, init?: Omit<RequestInit, "method">): Promise<Response>;
 		delete(path: string, init?: Omit<RequestInit, "method">): Promise<Response>;
+	}
+
+	export interface Options {
+		fetch: typeof globalThis.fetch;
 	}
 }

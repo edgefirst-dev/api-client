@@ -4,9 +4,10 @@ import {
 	beforeEach,
 	describe,
 	expect,
+	mock,
 	test,
 } from "bun:test";
-import { http, HttpResponse } from "msw";
+import { HttpResponse, http } from "msw";
 import { setupServer } from "msw/native";
 
 import { APIClient } from ".";
@@ -29,6 +30,19 @@ describe(APIClient.name, () => {
 	test("#constructor", () => {
 		let client = new APIClient(new URL("https://example.com"));
 		expect(client).toBeInstanceOf(APIClient);
+	});
+
+	test("#constructor with options", async () => {
+		let customFetch = mock<typeof fetch>().mockImplementation(globalThis.fetch);
+		let client = new APIClient(new URL("https://example.com"), {
+			fetch: customFetch as any as typeof fetch,
+		});
+
+		expect(client).toBeInstanceOf(APIClient);
+		await client.fetch("/path");
+		expect(customFetch).toHaveBeenCalledWith(
+			new Request("https://example.com/path"),
+		);
 	});
 
 	test("#fetch", async () => {
